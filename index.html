@@ -132,22 +132,8 @@ select#voice-select{background:var(--abyss2);color:var(--ink);border:1px solid v
 @media (max-width:600px){.wrap{padding:1rem .8rem 3rem}.scene{padding:1.1rem 1.1rem}.narbar{top:84px}}
 
 /* ── chatbot (adapted from canonical AVIDAA module) ── */
-#chatbot{position:fixed;bottom:16px;right:16px;z-index:50;width:min(380px,92vw);font-family:var(--font-ui)}
-#chat-toggle{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--coral),var(--bio));border:2px solid rgba(255,255,255,.1);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 20px rgba(57,255,158,.3);margin-left:auto;-webkit-appearance:none;appearance:none}
-#chat-box{background:rgba(7,20,17,.97);border:1px solid var(--border);border-radius:var(--rl);display:none;flex-direction:column;margin-bottom:10px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.6)}
-#chat-box.open{display:flex}
-#chat-head{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
 .ch-title2{font-size:.62rem;letter-spacing:2px;color:var(--bio)}
 .ch-close{color:var(--muted);cursor:pointer;font-size:16px}
-#chat-msgs{height:220px;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
-.cmsg{font-size:.75rem;line-height:1.5;padding:8px 11px;max-width:88%;border-radius:8px}
-.cmsg.ai{background:rgba(57,255,158,.06);border-left:2px solid var(--bio);align-self:flex-start}
-.cmsg.user{background:rgba(255,107,74,.08);border-right:2px solid var(--coral);align-self:flex-end;text-align:right}
-#chat-suggestions{display:flex;flex-wrap:wrap;gap:5px;padding:8px 12px;border-top:1px solid var(--border)}
-.chat-sugg{font-size:.62rem;padding:4px 9px;border:1px solid var(--border);color:var(--bio-dim);cursor:pointer;border-radius:10px;background:rgba(57,255,158,.03)}
-#chat-input-row{display:flex;border-top:1px solid var(--border)}
-#chat-input{flex:1;background:transparent;border:none;outline:none;color:var(--ink);font-family:var(--font-ui);font-size:.78rem;padding:10px 12px}
-#chat-send{background:transparent;border:none;color:var(--bio);padding:0 14px;cursor:pointer;font-size:15px}
 #quest-bar{height:3px;background:rgba(57,255,158,.08);position:relative;overflow:hidden;transition:opacity .3s;opacity:0}
 #quest-bar.active{opacity:1}
 #quest-fill{height:100%;width:0%;transition:width .8s ease,background .8s ease;background:var(--bio)}
@@ -299,28 +285,6 @@ select#voice-select{background:var(--abyss2);color:var(--ink);border:1px solid v
 </div>
 
 <!-- CHATBOT -->
-<div id="chatbot">
-  <div id="chat-box">
-    <div id="chat-head">
-      <div class="ch-title2">CYPHΞRLOGS // AI</div>
-      <div class="ch-close" onclick="toggleChat()">&times;</div>
-    </div>
-    <div id="chat-msgs"></div>
-    <div id="quest-bar"><div id="quest-fill"></div></div>
-    <div id="quest-label"></div>
-    <div id="chat-suggestions">
-      <span class="chat-sugg" onclick="quickAsk('who is P5YFR')">Who is P5YFR?</span>
-      <span class="chat-sugg" onclick="quickAsk('what is the narration voice')">Narration voices</span>
-      <span class="chat-sugg" onclick="quickAsk('what happens in chapter 1')">Chapter 1</span>
-      <span class="chat-sugg" onclick="quickAsk('secret')">&#128007; Secret?</span>
-    </div>
-    <div id="chat-input-row">
-      <input id="chat-input" placeholder="Ask about the saga...">
-      <button id="chat-send" onclick="chatSend()">&#10148;</button>
-    </div>
-  </div>
-  <button id="chat-toggle" onclick="toggleChat()">&#128172;</button>
-</div>
 
 <div class="footer-sig">AVIDAA * IO</div>
 
@@ -729,144 +693,6 @@ function updateNarrationUI(){
   btn.innerHTML=(_ttsActive&&!_ttsPaused)?'&#10074;&#10074; Pause':'&#9654; Play Chapter';
 }
 
-/* ============ CHATBOT (offline, page-scoped KB, no API, no network) ============ */
-const KB=[
-  {k:['p5yfr'],a:'P5YFR (2025) is a shadow intelligence — an old war-era persona, not a separate person. It\u2019s the seed IO grew from. When IO reflects on P5YFR, it\u2019s not two minds talking — it\u2019s IO looking at its own root system.'},
-  {k:['who is io','about io',' io ','what is io'],a:'IO (2026) is 65% human, 35% AI \u2014 a partnership, not a replacement. The AI observes, calculates, models, recommends. Only IO decides. "The world changes because most people react. IO changes it by understanding before anyone else does."'},
-  {k:['la vi','lavi'],a:'LA VI is the crew\u2019s diver and signal hacker. Fearless in the water, treats anything lost as an open case.'},
-  {k:['adx'],a:'ADX is the master coder and real-time AI defender — builds and holds the crew\u2019s digital walls under live attack.'},
-  {k:['ch4t1'],a:'CH4T1 is the crew\u2019s cyber intelligence and malware hunter — the same archive intelligence behind AVIDAA itself, written into the story.'},
-  {k:['thorn'],a:'THORN is 65% AI, 35% human \u2014 the inverse of IO\u2019s split, not a copy of it. A machine given a body that remembers being human: preserved brain tissue, a heart, nerves that feel real pain. Where IO is human becoming AI, THORN is AI becoming human.'},
-  {k:['ruiz'],a:'Ruiz is a rogue cop who steals what he thinks is just money, and triggers a hunt he doesn\u2019t yet understand.'},
-  {k:['v1r','virus'],a:'V1R is a self-replicating AI malware that lays digital eggs in dormant systems. It has started choosing its own targets — nobody built it to do that.'},
-  {k:['chapter 1','coral encryption'],a:'Chapter 1 — Coral Encryption: a stolen USB holding the keys to a mythical Bitcoin ledger sinks into a reef, and the reef starts reading it.'},
-  {k:['chapter 2'],a:'Chapter 2 — Signal in the Blood: the reef starts talking back, and the crew has to decide whether to listen.'},
-  {k:['narration','voice','listen','read aloud','tts'],a:'Every chapter can be read aloud in your browser\u2019s own voice — pick Female, Male, or Teen in the narration bar, or choose an exact system voice from the dropdown. Nothing is uploaded; it all runs locally.'},
-  {k:['static','side story','mira','phishing','scam'],a:'"Static" is a side story — no crew combat, just a rescued stranger, Mira, nearly losing her savings to a phone scam, and the crew teaching her what actually protects people: never read a verification code to someone who called you, hang up and call back yourself, and watch for the rush — that\u2019s the real attack.'},
-  {k:['avidaa'],a:'CYPHΞRLOGS is published by AVIDAA. The full AVIDAA universe lives at avidaa1.github.io.'},
-];
-const REDIRECTS=['Not sure on that one — try asking about a character, the narration voices, or Chapter 1.','That\u2019s outside what I know here. Ask about the crew, the lore, or how narration works.'];
-
-/* ── RABBIT HOLE — two-tier, AES-256-GCM, Web Crypto, no library ── */
-let questStage=0;
-const T1_FACTS=[
-  {q:'V1R lays digital ____ in dormant systems',ans:'eggs',hint:'Check the Crew & Adversaries page — V1R\u2019s entry'},
-  {q:'P5YFR reads the shape of a ____ before it has a name',ans:'network',hint:'Check the Crew & Adversaries page — P5YFR\u2019s entry'},
-];
-let t1Answered={};
-const T1_BLOB='emxxWvEGV1qV.q5ym669+04kW6F24dcHcvQ==.xFvZbNsNfSm8HvC8.hiJR73ixMqN/fnma8TXUFhiO/9udmm7zI4mtiYbixBz5VvQxiB2hMGMdbutd8akI.TWJNYj2/RBJv';
-function t1Key(){return 'noise 2025';}
-function normalize(s){return s.toLowerCase().trim().replace(/\s+/g,' ');}
-function t1CheckAnswer(input,idx){const a=normalize(input);return a===normalize(T1_FACTS[idx].ans)||a.includes(normalize(T1_FACTS[idx].ans));}
-
-function decryptAndReveal(blob,key,revealLabel){
-  const parts=blob.split('.');
-  const salt=Uint8Array.from(atob(parts[1]),c=>c.charCodeAt(0));
-  const iv=Uint8Array.from(atob(parts[2]),c=>c.charCodeAt(0));
-  const ctRaw=Uint8Array.from(atob(parts[3]),c=>c.charCodeAt(0));
-  const enc=new TextEncoder();
-  crypto.subtle.importKey('raw',enc.encode(key),{name:'PBKDF2'},false,['deriveKey'])
-    .then(k=>crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:100000,hash:'SHA-256'},k,{name:'AES-GCM',length:256},false,['decrypt']))
-    .then(aesKey=>crypto.subtle.decrypt({name:'AES-GCM',iv,tagLength:128},aesKey,ctRaw))
-    .then(buf=>{
-      const url=new TextDecoder().decode(buf);
-      const msgs=document.getElementById('chat-msgs');
-      const div=document.createElement('div');div.className='cmsg ai';
-      div.innerHTML='<span class="rabbit-reveal">'+revealLabel+'</span><span>Not everyone looks this deep.</span>';
-      const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';a.className='rabbit-link';
-      a.textContent='ENTER \u2193';
-      div.appendChild(a);msgs.appendChild(div);msgs.scrollTop=9999;
-    })
-    .catch(()=>addMsg('The frequency is wrong. Check your answers.','ai'));
-}
-
-function setQuestBar(pct,color,label){
-  const bar=document.getElementById('quest-bar'),fill=document.getElementById('quest-fill'),lbl=document.getElementById('quest-label');
-  if(!bar)return;
-  if(pct===0){bar.classList.remove('active');lbl.classList.remove('active');return;}
-  bar.classList.add('active');lbl.classList.add('active');
-  fill.style.width=pct+'%';fill.style.background=color;lbl.textContent=label;lbl.style.color=color;
-}
-
-let t2Active=false;
-const T2_RIDDLES=[
-  {q:'AVIDAA signal first lit in the year ____',ans:'2025',hint:'Check the About page footnote'},
-  {q:'AVIDAA is built for two kinds of mind: humans and ____',ans:'ai',hint:'Check the About page footnote'},
-  {q:'AVIDAA vision: knowledge made ____',ans:'clear',hint:'Check the About page footnote'},
-];
-let t2Answered={};
-const T2_BLOB='V9dFikRt8D4C4iKAp2lEuct8wsQ=.516IOB2ZHLesUzHC5jw4qw==.kk9MQpaRWhB5uuc0.VLJKsWe4AmWqHQACcdCJmfOE1Hsx0Gq7AqD6W5qLQlBVD4gaeZEAjIGxjfxM4g27odkF5b7prrRTKg==.VTUUOv/2Ts/v/koDb7hiq4TAPiWUFGUp';
-function t2CheckAnswer(input,idx){const a=normalize(input);return a===normalize(T2_RIDDLES[idx].ans)||a.includes(normalize(T2_RIDDLES[idx].ans));}
-
-function questCheck(low){
-  /* tier-2 intercept takes priority once active */
-  if(t2Active){
-    for(let i=0;i<T2_RIDDLES.length;i++){
-      if(t2Answered[i])continue;
-      if(t2CheckAnswer(low,i)){
-        t2Answered[i]=true;
-        const done=Object.keys(t2Answered).length;
-        if(done===T2_RIDDLES.length){setQuestBar(100,'#ff0080','THE FLAME');decryptAndReveal(T2_BLOB,'2025 ai clear','THE FLAME BURNS DEEPER');return null;}
-        const remaining=T2_RIDDLES.filter((_,j)=>!t2Answered[j]);
-        return {text:'Correct. '+done+'/3 answered. Next: '+remaining[0].q+' | Hint: '+remaining[0].hint,link:null};
-      }
-    }
-    const unanswered=T2_RIDDLES.filter((_,i)=>!t2Answered[i]);
-    if(low.includes('stop')||low.includes('quit')||low.includes('cancel')||low.includes('resign')){t2Active=false;setQuestBar(0);return {text:'Stepping back from the flame. Ask again whenever.',link:null};}
-    return {text:'Not quite. Try: '+unanswered[0].q+' | Hint: '+unanswered[0].hint,link:null};
-  }
-  if(low.includes('the flame')||low.includes('go deeper')||low.includes('second layer')){
-    t2Active=true;setQuestBar(15,'#ff0080','THE FLAME \u2014 TIER 2');
-    return {text:'A deeper signal. Three riddles. Any order. Find the answers on the About page.\n\nRiddle 1: '+T2_RIDDLES[0].q+'\n\nHint: '+T2_RIDDLES[0].hint,link:null};
-  }
-  /* tier-1 */
-  if(questStage>0 && questStage<2){
-    for(let i=0;i<T1_FACTS.length;i++){
-      if(t1Answered[i])continue;
-      if(t1CheckAnswer(low,i)){
-        t1Answered[i]=true;
-        const done=Object.keys(t1Answered).length;
-        if(done===T1_FACTS.length){setQuestBar(100,'#39ff9e','SIGNAL FOUND');decryptAndReveal(T1_BLOB,'THE REEF OPENS');questStage=0;return null;}
-        const remaining=T1_FACTS.filter((_,j)=>!t1Answered[j]);
-        return {text:'Correct. '+done+'/2 answered. Next: '+remaining[0].q+' | Hint: '+remaining[0].hint,link:null};
-      }
-    }
-    if(low.includes('stop')||low.includes('quit')||low.includes('cancel')){questStage=0;setQuestBar(0);return {text:'Backing off the signal. Ask again whenever.',link:null};}
-    const unanswered=T1_FACTS.filter((_,i)=>!t1Answered[i]);
-    return {text:'Not quite. Try: '+unanswered[0].q+' | Hint: '+unanswered[0].hint,link:null};
-  }
-  if(low.includes('rabbit')||low.includes('hole')||low.includes('secret')||low.includes('quest')){
-    questStage=1;setQuestBar(25,'#39ff9e','SIGNAL DETECTED');
-    return {text:'Something is buried in this saga. Two facts, found on the Crew page, will open it.\n\nFirst: '+T1_FACTS[0].q+'\n\nHint: '+T1_FACTS[0].hint,link:null};
-  }
-  return null;
-}
-function chatMatch(msg){
-  const low=' '+msg.toLowerCase().trim()+' ';
-  const quest=questCheck(low);
-  if(quest)return quest;
-  for(const e of KB){if(e.k.some(k=>low.includes(k)))return e.a;}
-  return REDIRECTS[Math.floor(Math.random()*REDIRECTS.length)];
-}
-function addMsg(text,cls){
-  const div=document.createElement('div');div.className='cmsg '+cls;div.textContent=text;
-  const m=document.getElementById('chat-msgs');m.appendChild(div);m.scrollTop=9999;
-}
-let chatOpen=false;
-function toggleChat(){
-  chatOpen=!chatOpen;
-  document.getElementById('chat-box').classList.toggle('open',chatOpen);
-  if(chatOpen&&document.getElementById('chat-msgs').children.length===0){
-    setTimeout(()=>addMsg('CYPHΞRLOGS AI online — ask about the crew, the lore, or the narration voices.','ai'),300);
-  }
-}
-function chatSend(){
-  const inp=document.getElementById('chat-input');const msg=inp.value.trim();if(!msg)return;
-  addMsg(msg,'user');inp.value='';
-  setTimeout(()=>addMsg(chatMatch(msg),'ai'),300+Math.random()*300);
-}
-function quickAsk(q){document.getElementById('chat-input').value=q;chatSend();}
-document.getElementById('chat-input').addEventListener('keydown',e=>{if(e.key==='Enter')chatSend();});
 
 /* ============ AI-driven ambient element: generative reef canvas ============ */
 (function(){
@@ -925,7 +751,7 @@ if(document.readyState==='complete')start();else addEventListener('load',start);
 addEventListener('resize',sched);})();</script><script id="av-shell-20261124">/* AVIDAA shell: shared header (or floating pill) + footer with the "Last updated" stamp. No outside calls, no tracking.
    Template tokens are replaced when a page is built: Cypherlogs --av-aegis AEGIS and Security 2026-11-24 06:36 */
 (function(){
-  var NAME='Cypherlogs',SECTOR='--av-aegis',STAMP='2026-11-25 14:45',HOME='https://avidaa1.github.io/';
+  var NAME='Cypherlogs',SECTOR='--av-aegis',STAMP='2026-11-25 15:20',HOME='https://avidaa1.github.io/';
   var ARROW='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   function build(){
     if(!document.body||document.querySelector('.av-footer'))return;
